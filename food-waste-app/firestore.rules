@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isSelf(uid) { return request.auth != null && request.auth.uid == uid; }
+
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isSelf(uid);
+      allow update, delete: if isSelf(uid);
+    }
+
+    match /listings/{id} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if resource.data.supplierId == request.auth.uid;
+    }
+  }
+}
