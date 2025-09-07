@@ -1,97 +1,104 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Food App (React Native + Firebase) - JavaScript
 
-# Getting Started
+This scaffolds Firebase-backed auth, foods CRUD with image upload, favorites, cart, and orders using React Native Firebase (plain JS, not TypeScript).
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Included
+- `src/firebase`: Firebase wrapper
+- `src/services/auth.js`: register/login/logout/profile
+- `src/services/foods.js`: CRUD + Storage upload + favorites
+- `src/services/cartOrders.js`: Cart + Orders
+- `src/App.js` + `src/screens/*`: Example screens with React Navigation
+- `firebase/firestore.rules` and `firebase/storage.rules`: Security rules
 
-## Step 1: Start Metro
+## Install dependencies
+```bash
+# React Native Firebase
+npm install @react-native-firebase/app @react-native-firebase/auth @react-native-firebase/firestore @react-native-firebase/storage
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+# React Navigation
+npm install @react-navigation/native @react-navigation/native-stack
+npm install react-native-screens react-native-safe-area-context
 
-To start the Metro dev server, run the following command from the root of your React Native project:
-
-```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+# Image picker (for uploads)
+npm install react-native-image-picker
 ```
 
-## Step 2: Build and run your app
+## Android: where to put google-services.json
+- Put your Firebase Android config file at:
+  - `android/app/google-services.json`
+- Ensure Gradle is configured:
+```gradle
+// android/build.gradle
+buildscript {
+  dependencies {
+    classpath('com.google.gms:google-services:4.4.2')
+  }
+}
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+// android/app/build.gradle
+apply plugin: 'com.google.gms.google-services'
+```
 
-### Android
+## iOS (if building for iOS)
+- Add `GoogleService-Info.plist` to your iOS app target in `ios/`.
+- Then run:
+```bash
+cd ios && pod install && cd ..
+```
 
-```sh
-# Using npm
+## Use the provided code
+- Copy `src/` and `firebase/` directories into your project root.
+- Use `src/App.js` as your app entry or integrate screens/services into your app.
+- Ensure your `index.js` exports the `App` from `src/App.js` or integrates it.
+
+## Firebase console setup needed
+- Enable Authentication → Email/Password.
+- Create Firestore (Production mode recommended).
+- Create Storage bucket.
+- Deploy rules:
+```bash
+# After installing Firebase CLI and selecting your project (foodapp-1181f)
+# firebase use foodapp-1181f
+firebase deploy --only firestore:rules,storage:rules
+```
+
+## Important notes about your JSON
+- Do NOT paste the JSON into your JavaScript code.
+- React Native Firebase reads native config files:
+  - Android: `android/app/google-services.json`
+  - iOS: `ios/GoogleService-Info.plist`
+- Your posted values (project_id, api key, etc.) should match the file you download from Firebase Console for `com.foodwasteapp`.
+
+## Collections used
+- `users/{uid}`: profile fields, `favorites: []`
+- `foods/{foodId}`: `ownerId`, `title`, `description`, `price`, `category`, `imageURL`
+- `carts/{uid}/items/{foodId}`: `qty`, `title`, `price`, `imageURL`
+- `orders/{orderId}`: `userId`, `items[]`, `subtotal`, `status`
+
+## Screens provided
+- Login/Register: email/password
+- Home: list foods, navigate to detail, go to Add, Cart, Profile
+- AddFood: create food with image upload
+- FoodDetail: add to cart, toggle favorite
+- Cart: adjust qty, checkout creates an order
+- Profile: update display name, logout
+
+## Your Firebase project values
+```
+project_id: foodapp-1181f
+project_number: 256535913983
+storage_bucket: foodapp-1181f.firebasestorage.app
+android package: com.foodwasteapp
+app id: 1:256535913983:android:6cac507eb6bd63ec1473ca
+api key: AIzaSyA79QYR0LeNLo4BN9iFthBWzHDhg1B1W3c
+```
+Make sure the Android package matches in Firebase Console and `applicationId` in `android/app/build.gradle`.
+
+## Run
+```bash
 npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+# or
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+If you get permission or rules errors, ensure you are signed in and the Firestore/Storage rules have been deployed.
