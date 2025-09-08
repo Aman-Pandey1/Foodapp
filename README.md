@@ -39,6 +39,22 @@ buildscript {
 apply plugin: 'com.google.gms.google-services'
 ```
 
+### Troubleshooting: No matching client found for package name
+- Error: `No matching client found for package name 'com.*'`
+- Causes:
+  - Your `applicationId` (Gradle) does not match any `package_name` in `google-services.json`.
+  - The JSON is missing entirely or placed in the wrong folder.
+- Fix:
+  - Check `android/app/build.gradle` has:
+    - `namespace "com.foodwasteapp"`
+    - `applicationId "com.foodwasteapp"`
+  - Ensure your Firebase console Android app is registered with `com.foodwasteapp`.
+  - Download the JSON from Firebase and place it at `android/app/google-services.json`.
+  - Clean and rebuild:
+    ```bash
+    cd android && ./gradlew clean assembleDebug
+    ```
+
 ## iOS (if building for iOS)
 - Add `GoogleService-Info.plist` to your iOS app target in `ios/`.
 - Then run:

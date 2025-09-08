@@ -118,3 +118,20 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+// Build-time validation for google-services.json
+def googleServicesJson = file("$projectDir/google-services.json")
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith("process") && task.name.endsWith("GoogleServices")) {
+        task.doFirst {
+            if (!googleServicesJson.exists()) {
+                throw new GradleException("Missing google-services.json at android/app/google-services.json. Download it for package ${android.defaultConfig.applicationId} from Firebase.")
+            }
+            def jsonText = googleServicesJson.getText('UTF-8')
+            def expected = "\"package_name\": \"${android.defaultConfig.applicationId}\""
+            if (!jsonText.contains(expected)) {
+                throw new GradleException("google-services.json does not contain package_name ${android.defaultConfig.applicationId}. Fix your Firebase app registration or applicationId.")
+            }
+        }
+    }
+}
