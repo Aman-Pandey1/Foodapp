@@ -1,30 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { observeFoods } from '../services/foods';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Button, Image } from 'react-native';
+import { observeFoods, deleteFood } from '../services/foods';
+import { getCurrentUser } from '../firebase';
 
-export default function HomeScreen({ navigation }) {
+export default function MyPostsScreen({ navigation }) {
   const [foods, setFoods] = useState([]);
+  const user = getCurrentUser();
 
   useEffect(() => {
-    const unsub = observeFoods({}, setFoods);
+    if (!user?.uid) return;
+    const unsub = observeFoods({ ownerId: user.uid }, setFoods);
     return unsub;
-  }, []);
+  }, [user?.uid]);
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('FoodDetail', { id: item.id })}>
+    <View style={styles.card}>
       {!!item.imageURL && <Image source={{ uri: item.imageURL }} style={styles.image} />}
       <View style={styles.info}>
-        <Text style={styles.title}>{item.title}</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('FoodDetail', { id: item.id })}>
+          <Text style={styles.title}>{item.title}</Text>
+        </TouchableOpacity>
         <Text numberOfLines={2} style={styles.desc}>{item.description}</Text>
-        <Text style={styles.price}>${Number(item.price).toFixed(2)}</Text>
+        <View style={styles.row}>
+          <Text style={styles.price}>₹{Number(item.price).toFixed(2)}</Text>
+          <View style={{ flex: 1 }} />
+          <Button title="Delete" color="#cc0000" onPress={() => deleteFood(item.id)} />
+        </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
     <View style={styles.container}>
       {foods.length === 0 ? (
-        <View style={styles.empty}><Text>No foods yet</Text></View>
+        <View style={styles.empty}><Text>No posts yet</Text></View>
       ) : (
         <FlatList data={foods} keyExtractor={(item) => item.id} renderItem={renderItem} contentContainerStyle={styles.list} />
       )}
@@ -42,5 +51,6 @@ const styles = StyleSheet.create({
   desc: { color: '#555', marginTop: 4 },
   price: { marginTop: 6, fontWeight: 'bold' },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
 });
 

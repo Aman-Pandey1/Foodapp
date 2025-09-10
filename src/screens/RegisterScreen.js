@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import { registerWithEmail } from '../services/auth';
+import { useAuth } from '../context/AuthContext';
 
 export default function RegisterScreen({ navigation }) {
+  const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -13,7 +15,7 @@ export default function RegisterScreen({ navigation }) {
     setError('');
     setLoading(true);
     try {
-      await registerWithEmail({ email, password, displayName: name });
+      await register({ email, password, displayName: name, role: role || undefined });
     } catch (e) {
       setError(e.message);
     } finally {
@@ -28,6 +30,7 @@ export default function RegisterScreen({ navigation }) {
       <TextInput placeholder="Name" value={name} onChangeText={setName} style={styles.input} />
       <TextInput placeholder="Email" value={email} onChangeText={setEmail} autoCapitalize='none' keyboardType='email-address' style={styles.input} />
       <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
+      <TextInput placeholder="Role (optional: supplier or producer)" value={role} onChangeText={setRole} style={styles.input} />
       <Button title={loading ? 'Loading...' : 'Create Account'} onPress={onRegister} disabled={loading} />
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.linkWrap}>
         <Text style={styles.link}>Back to login</Text>
