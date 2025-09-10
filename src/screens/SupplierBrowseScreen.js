@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { observeFoods } from '../services/foods';
 
-export default function HomeScreen({ navigation }) {
+export default function SupplierBrowseScreen({ navigation }) {
   const [foods, setFoods] = useState([]);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.info}>
         <Text style={styles.title}>{item.title}</Text>
         <Text numberOfLines={2} style={styles.desc}>{item.description}</Text>
-        <Text style={styles.price}>${Number(item.price).toFixed(2)}</Text>
+        <Text style={styles.price}>₹{Number(item.price).toFixed(2)}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -24,7 +24,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {foods.length === 0 ? (
-        <View style={styles.empty}><Text>No foods yet</Text></View>
+        <View style={styles.empty}><Text>No listings available</Text></View>
       ) : (
         <FlatList data={foods} keyExtractor={(item) => item.id} renderItem={renderItem} contentContainerStyle={styles.list} />
       )}

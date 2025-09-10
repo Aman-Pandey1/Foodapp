@@ -2,7 +2,7 @@ import { auth, firestore } from '../firebase';
 
 const USERS_COLLECTION = 'users';
 
-export async function registerWithEmail({ email, password, displayName }) {
+export async function registerWithEmail({ email, password, displayName, role }) {
   const credential = await auth().createUserWithEmailAndPassword(email, password);
   const user = credential.user;
   if (displayName) {
@@ -16,6 +16,7 @@ export async function registerWithEmail({ email, password, displayName }) {
     createdAt: firestore.FieldValue.serverTimestamp(),
     updatedAt: firestore.FieldValue.serverTimestamp(),
     favorites: [],
+    ...(role ? { role } : {}),
   };
   await firestore().collection(USERS_COLLECTION).doc(user.uid).set(userDoc, { merge: true });
   return user;
@@ -38,7 +39,7 @@ export function getCurrentUser() {
   return auth().currentUser;
 }
 
-export async function updateProfile({ displayName, photoURL }) {
+export async function updateProfile({ displayName, photoURL, role }) {
   const user = auth().currentUser;
   if (!user) throw new Error('No authenticated user');
   await user.updateProfile({ displayName, photoURL });
@@ -46,6 +47,7 @@ export async function updateProfile({ displayName, photoURL }) {
     displayName: displayName ?? user.displayName ?? '',
     photoURL: photoURL ?? user.photoURL ?? '',
     updatedAt: firestore.FieldValue.serverTimestamp(),
+    ...(role ? { role } : {}),
   }, { merge: true });
   return auth().currentUser;
 }
