@@ -1,4 +1,4 @@
-package com.foodwasteapp
+package com.foodapp
 
 import android.app.Application
 import com.facebook.react.PackageList
@@ -36,3 +36,4 @@ class MainApplication : Application(), ReactApplication {
     loadReactNative(this)
   }
 }
+
