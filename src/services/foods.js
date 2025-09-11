@@ -4,7 +4,12 @@ const FOODS_COLLECTION = 'foods';
 const USERS_COLLECTION = 'users';
 
 function getUidOrThrow() {
-  const user = auth().currentUser;
+  let user = null;
+  try {
+    user = auth().currentUser;
+  } catch (_e) {
+    user = null;
+  }
   if (!user) throw new Error('Not authenticated');
   return user.uid;
 }
@@ -92,13 +97,21 @@ export async function listFoods({ ownerId, category, limit = 20, startAfter } = 
 }
 
 export function observeFoods({ ownerId, category, limit = 50 } = {}, callback) {
-  let query = firestore().collection(FOODS_COLLECTION).orderBy('createdAt', 'desc').limit(limit);
-  if (ownerId) query = query.where('ownerId', '==', ownerId);
-  if (category) query = query.where('category', '==', category);
-  return query.onSnapshot((snap) => {
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    callback(items);
-  });
+  try {
+    let query = firestore().collection(FOODS_COLLECTION).orderBy('createdAt', 'desc').limit(limit);
+    if (ownerId) query = query.where('ownerId', '==', ownerId);
+    if (category) query = query.where('category', '==', category);
+    return query.onSnapshot((snap) => {
+      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      callback(items);
+    });
+  } catch (error) {
+    // If Firestore native module isn't available yet, avoid crash and emit empty list
+    // eslint-disable-next-line no-console
+    console.warn('[Foods] observeFoods unavailable, emitting empty list:', error?.message || error);
+    setTimeout(() => callback([]), 0);
+    return () => {};
+  }
 }
 
 export async function toggleFavorite(foodId) {
