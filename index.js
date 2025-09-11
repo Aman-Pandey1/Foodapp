@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { enableScreens } from 'react-native-screens';
 import { AppRegistry } from 'react-native';
 import App from './src/App';
+import ErrorBoundary from './src/components/ErrorBoundary';
 import { name as appName } from './app.json';
 
 try {
@@ -19,7 +20,9 @@ try {
 function Root() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </GestureHandlerRootView>
   );
 }
