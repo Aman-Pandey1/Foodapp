@@ -10,7 +10,11 @@ import { AppRegistry } from 'react-native';
 import App from './src/App';
 import { name as appName } from './app.json';
 
-enableScreens(true);
+try {
+  enableScreens(true);
+} catch (_e) {
+  // no-op if native screens not available; prevents startup crash in unstable envs
+}
 
 function Root() {
   return (

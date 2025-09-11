@@ -32,7 +32,16 @@ export async function logout() {
 }
 
 export function observeAuthState(callback) {
-  return auth().onAuthStateChanged(callback);
+  try {
+    return auth().onAuthStateChanged(callback);
+  } catch (error) {
+    // Gracefully degrade if native Firebase is not configured (e.g., missing iOS plist)
+    // Prevent app crash on startup by emitting a null user and a no-op unsubscribe
+    // eslint-disable-next-line no-console
+    console.warn('[Auth] onAuthStateChanged unavailable, continuing without native Firebase:', error?.message || error);
+    setTimeout(() => callback(null), 0);
+    return () => {};
+  }
 }
 
 export function getCurrentUser() {

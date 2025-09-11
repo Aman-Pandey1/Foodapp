@@ -4,7 +4,12 @@ const CART_COLLECTION = 'carts';
 const ORDERS_COLLECTION = 'orders';
 
 function getUidOrThrow() {
-  const user = auth().currentUser;
+  let user = null;
+  try {
+    user = auth().currentUser;
+  } catch (_e) {
+    user = null;
+  }
   if (!user) throw new Error('Not authenticated');
   return user.uid;
 }
@@ -63,16 +68,23 @@ export async function getCart() {
 }
 
 export function observeCart(callback) {
-  const uid = getUidOrThrow();
-  return firestore().collection(CART_COLLECTION).doc(uid).collection('items').onSnapshot(snap => {
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const totals = items.reduce((acc, it) => {
-      acc.qty += it.qty || 0;
-      acc.subtotal += (Number(it.price) || 0) * (it.qty || 0);
-      return acc;
-    }, { qty: 0, subtotal: 0 });
-    callback({ items, ...totals });
-  });
+  try {
+    const uid = getUidOrThrow();
+    return firestore().collection(CART_COLLECTION).doc(uid).collection('items').onSnapshot(snap => {
+      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const totals = items.reduce((acc, it) => {
+        acc.qty += it.qty || 0;
+        acc.subtotal += (Number(it.price) || 0) * (it.qty || 0);
+        return acc;
+      }, { qty: 0, subtotal: 0 });
+      callback({ items, ...totals });
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn('[Cart] observeCart unavailable, emitting empty cart:', error?.message || error);
+    setTimeout(() => callback({ items: [], qty: 0, subtotal: 0 }), 0);
+    return () => {};
+  }
 }
 
 export async function checkout({ address, note }) {
@@ -109,10 +121,17 @@ export async function listOrders({ limit = 20, startAfter } = {}) {
 }
 
 export function observeOrders(callback) {
-  const uid = getUidOrThrow();
-  return firestore().collection(ORDERS_COLLECTION).where('userId', '==', uid).orderBy('createdAt', 'desc').onSnapshot(snap => {
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    callback(items);
-  });
+  try {
+    const uid = getUidOrThrow();
+    return firestore().collection(ORDERS_COLLECTION).where('userId', '==', uid).orderBy('createdAt', 'desc').onSnapshot(snap => {
+      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      callback(items);
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn('[Orders] observeOrders unavailable, emitting empty list:', error?.message || error);
+    setTimeout(() => callback([]), 0);
+    return () => {};
+  }
 }
 
