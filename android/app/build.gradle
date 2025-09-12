@@ -78,6 +78,10 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
+    buildFeatures {
+        prefab true
+    }
+
     namespace "com.foodwasteapp"
     defaultConfig {
         applicationId "com.foodwasteapp"
@@ -105,6 +109,13 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+    }
+
+    // Avoid duplicate shared library conflicts from transitive dependencies
+    packagingOptions {
+        pickFirst "lib/**/libc++_shared.so"
+        pickFirst "lib/**/libreactnativejni.so"
+        pickFirst "lib/**/libfbjni.so"
     }
 }
 
