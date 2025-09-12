@@ -8,3 +8,19 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+# Reanimated / Worklets
+-keep class com.swmansion.reanimated.** { *; }
+-keep class com.swmansion.common.** { *; }
+-keep class com.facebook.react.turbomodule.** { *; }
+-keep class com.facebook.hermes.** { *; }
+-keep class com.facebook.jni.** { *; }
+-keep class com.facebook.react.bridge.** { *; }
+
+# Firebase / Google Play Services
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.firebase.**
+
+# General
+-keepattributes *Annotation*,InnerClasses
