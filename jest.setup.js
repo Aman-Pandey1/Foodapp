@@ -1,13 +1,14 @@
+/* eslint-env jest */
 import 'react-native-gesture-handler/jestSetup';
 
 // Mock Reanimated
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
 // Mock React Native Firebase modules used in app
-jest.mock('@react-native-firebase/app', () => () => ({}));
+jest.mock('@react-native-firebase/app', () => ({ __esModule: true, default: () => ({}) }));
 
 jest.mock('@react-native-firebase/auth', () => {
-  return () => ({
+  const impl = () => ({
     currentUser: null,
     onAuthStateChanged: (cb) => {
       cb(null);
@@ -21,12 +22,13 @@ jest.mock('@react-native-firebase/auth', () => {
     })),
     signOut: jest.fn(async () => {}),
   });
+  return { __esModule: true, default: impl };
 });
 
 jest.mock('@react-native-firebase/firestore', () => {
   const FieldValue = { serverTimestamp: () => new Date() };
   const emptySnap = { docs: [], exists: false, data: () => ({}) };
-  return () => ({
+  const impl = () => ({
     FieldValue,
     collection: () => ({
       doc: () => ({
@@ -49,14 +51,25 @@ jest.mock('@react-native-firebase/firestore', () => {
       limit: () => ({ get: jest.fn(async () => emptySnap) }),
     }),
   });
+  return { __esModule: true, default: impl };
 });
 
 jest.mock('@react-native-firebase/storage', () => {
-  return () => ({
+  const impl = () => ({
     ref: () => ({
       putFile: jest.fn(async () => {}),
       getDownloadURL: jest.fn(async () => 'https://example.com/image.jpg'),
     }),
   });
+  return { __esModule: true, default: impl };
 });
+
+// Stabilize color scheme in tests to avoid teardown warnings
+try {
+  // eslint-disable-next-line global-require
+  const RN = require('react-native');
+  if (RN && typeof RN.useColorScheme === 'function') {
+    jest.spyOn(RN, 'useColorScheme').mockReturnValue('light');
+  }
+} catch (_e) {}
 
