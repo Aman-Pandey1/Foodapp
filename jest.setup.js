@@ -4,6 +4,23 @@ import 'react-native-gesture-handler/jestSetup';
 // Mock Reanimated
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
+// Mock react-native-screens to prevent requireNativeComponent errors in tests
+jest.mock('react-native-screens', () => ({
+  enableScreens: jest.fn(),
+}));
+
+// Mock native-stack navigator to a lightweight no-op implementation for tests
+jest.mock('@react-navigation/native-stack', () => {
+  const React = require('react');
+  return {
+    createNativeStackNavigator: () => {
+      const Navigator = ({ children }) => React.createElement(React.Fragment, null, children);
+      const Screen = () => null;
+      return { Navigator, Screen };
+    },
+  };
+});
+
 // Mock React Native Firebase modules used in app
 jest.mock('@react-native-firebase/app', () => ({ __esModule: true, default: () => ({}) }));
 

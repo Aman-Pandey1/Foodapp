@@ -4,7 +4,14 @@
 
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { View } from 'react-native';
+let GestureHandlerRootView = View;
+try {
+  // eslint-disable-next-line global-require
+  GestureHandlerRootView = require('react-native-gesture-handler').GestureHandlerRootView;
+} catch (_e) {
+  // fallback to View if native module is unavailable (tests)
+}
 import { enableScreens } from 'react-native-screens';
 import { AppRegistry } from 'react-native';
 import App from './src/App';
