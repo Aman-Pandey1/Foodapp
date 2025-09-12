@@ -51,13 +51,14 @@ const auth = () => {
   };
 };
 
+const fallbackFieldValue = { serverTimestamp: () => new Date() };
+
 const firestore = () => {
   const mod = getFirestoreModule();
   if (mod) return mod();
   // Lightweight fallback used only in non-native contexts (tests). Do not use in production.
-  const FieldValue = { serverTimestamp: () => new Date() };
   return {
-    FieldValue,
+    FieldValue: fallbackFieldValue,
     batch: () => ({ set: () => {}, delete: () => {}, commit: async () => {} }),
     collection: () => ({
       doc: () => ({
@@ -66,13 +67,41 @@ const firestore = () => {
         delete: async () => {},
         get: async () => ({ exists: false, data: () => ({}) }),
       }),
-      orderBy: () => ({ where: () => ({ startAfter: () => ({ limit: () => ({ get: async () => ({ docs: [] }) }) }) }), limit: () => ({ get: async () => ({ docs: [] }) }) }),
-      where: () => ({ limit: () => ({ get: async () => ({ docs: [] }) }) }),
+      orderBy: () => ({
+        where: () => ({
+          startAfter: () => ({
+            limit: () => ({ get: async () => ({ docs: [] }) }),
+          }),
+        }),
+        limit: () => ({ get: async () => ({ docs: [] }) }),
+        onSnapshot: (cb) => { cb({ docs: [] }); return () => {}; },
+      }),
+      where: () => ({
+        limit: () => ({ get: async () => ({ docs: [] }) }),
+        onSnapshot: (cb) => { cb({ docs: [] }); return () => {}; },
+      }),
       limit: () => ({ get: async () => ({ docs: [] }) }),
       onSnapshot: (cb) => { cb({ docs: [] }); return () => {}; },
     }),
   };
 };
+
+// Mirror RNFirebase API: expose FieldValue on the callable function as a static prop
+try {
+  Object.defineProperty(firestore, 'FieldValue', {
+    configurable: true,
+    enumerable: true,
+    get() {
+      const mod = getFirestoreModule();
+      if (mod && mod.FieldValue) return mod.FieldValue;
+      return fallbackFieldValue;
+    },
+  });
+} catch (_e) {
+  // Assign directly if defineProperty is not available for some reason
+  // eslint-disable-next-line no-param-reassign
+  firestore.FieldValue = fallbackFieldValue;
+}
 
 const storage = () => {
   const mod = getStorageModule();
