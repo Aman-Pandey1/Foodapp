@@ -14,7 +14,7 @@ function getUidOrThrow() {
   return user.uid;
 }
 
-export async function createFood({ title, description, price, imageUri, category }) {
+export async function createFood({ title, description, price, imageUri, category, quantity, location }) {
   const uid = getUidOrThrow();
   const foodRef = firestore().collection(FOODS_COLLECTION).doc();
 
@@ -33,6 +33,8 @@ export async function createFood({ title, description, price, imageUri, category
     description: description || '',
     price: Number(price) || 0,
     category: category || 'general',
+    quantity: Number(quantity) || 0,
+    location: location || '',
     imageURL,
     createdAt: firestore.FieldValue.serverTimestamp(),
     updatedAt: firestore.FieldValue.serverTimestamp(),
@@ -41,7 +43,7 @@ export async function createFood({ title, description, price, imageUri, category
   return food;
 }
 
-export async function updateFood(id, { title, description, price, imageUri, category }) {
+export async function updateFood(id, { title, description, price, imageUri, category, quantity, location }) {
   const uid = getUidOrThrow();
   const ref = firestore().collection(FOODS_COLLECTION).doc(id);
   const doc = await ref.get();
@@ -62,6 +64,8 @@ export async function updateFood(id, { title, description, price, imageUri, cate
     ...(description !== undefined ? { description } : {}),
     ...(price !== undefined ? { price: Number(price) } : {}),
     ...(category !== undefined ? { category } : {}),
+    ...(quantity !== undefined ? { quantity: Number(quantity) } : {}),
+    ...(location !== undefined ? { location } : {}),
     imageURL,
     updatedAt: firestore.FieldValue.serverTimestamp(),
   };

@@ -16,6 +16,8 @@ export default function SupplierBrowseScreen({ navigation }) {
       <View style={styles.info}>
         <Text style={styles.title}>{item.title}</Text>
         <Text numberOfLines={2} style={styles.desc}>{item.description}</Text>
+        {!!item.quantity && <Text>Qty: {item.quantity}</Text>}
+        {!!item.location && <Text>Loc: {item.location}</Text>}
         <Text style={styles.price}>₹{Number(item.price).toFixed(2)}</Text>
       </View>
     </TouchableOpacity>

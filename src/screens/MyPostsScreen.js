@@ -21,6 +21,8 @@ export default function MyPostsScreen({ navigation }) {
           <Text style={styles.title}>{item.title}</Text>
         </TouchableOpacity>
         <Text numberOfLines={2} style={styles.desc}>{item.description}</Text>
+        <Text>Qty: {item.quantity ?? 0}</Text>
+        {!!item.location && <Text>Loc: {item.location}</Text>}
         <View style={styles.row}>
           <Text style={styles.price}>₹{Number(item.price).toFixed(2)}</Text>
           <View style={{ flex: 1 }} />

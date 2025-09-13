@@ -9,6 +9,8 @@ export default function AddFoodScreen({ navigation }) {
   const [price, setPrice] = useState('');
   const [imageUri, setImageUri] = useState('');
   const [category, setCategory] = useState('general');
+  const [quantity, setQuantity] = useState('');
+  const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,7 +23,7 @@ export default function AddFoodScreen({ navigation }) {
     setError('');
     setLoading(true);
     try {
-      await createFood({ title, description, price: parseFloat(price), imageUri, category });
+      await createFood({ title, description, price: parseFloat(price), imageUri, category, quantity: parseFloat(quantity), location });
       navigation.goBack();
     } catch (e) {
       setError(e.message);
@@ -38,6 +40,8 @@ export default function AddFoodScreen({ navigation }) {
       <TextInput placeholder="Description" value={description} onChangeText={setDescription} style={styles.input} />
       <TextInput placeholder="Price" value={price} onChangeText={setPrice} keyboardType='decimal-pad' style={styles.input} />
       <TextInput placeholder="Category" value={category} onChangeText={setCategory} style={styles.input} />
+      <TextInput placeholder="Quantity" value={quantity} onChangeText={setQuantity} keyboardType='decimal-pad' style={styles.input} />
+      <TextInput placeholder="Location" value={location} onChangeText={setLocation} style={styles.input} />
       {imageUri ? <Image source={{ uri: imageUri }} style={styles.image} /> : null}
       <Button title="Pick Image" onPress={pickImage} />
       <View style={{ height: 12 }} />
